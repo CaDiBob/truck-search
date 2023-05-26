@@ -9,6 +9,7 @@ class Location(models.Model):
     lon = models.FloatField('Долгота')
 
     class Meta:
+        ordering = ['city', ]
         verbose_name = 'Локация'
         verbose_name_plural = 'Локации'
 
