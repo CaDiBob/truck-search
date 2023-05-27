@@ -8,7 +8,7 @@
 git clone git@github.com:CaDiBob/truck-search.git
 ```
 
-Предворительная настройка:
+Предварительная настройка:
 
 Файл .envExample переименовать в .env и заполнить нужными данными.
 
