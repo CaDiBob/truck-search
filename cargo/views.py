@@ -1,18 +1,63 @@
-from rest_framework.decorators import api_view
-from rest_framework.generics import CreateAPIView, ListAPIView
+from rest_framework import viewsets
+from rest_framework import status
+from rest_framework.settings import api_settings
+from rest_framework.generics import (
+    RetrieveUpdateDestroyAPIView,
+    GenericAPIView
+)
 from rest_framework.response import Response
-from django.db import transaction
+from django.shortcuts import get_object_or_404
 
 from cargo.models import Cargo
-from truck.models import Truck
-from location.models import Location
-from cargo.serializers import CargoCreateSerializer, CargoSerializer
+from cargo.serializers import (
+    CargoCreateSerializer,
+    CargoSerializer,
+    CargoDetailSerializer,
+    CargoUpdateSerializer
+)
 
 
-class CargoInfo(ListAPIView):
-    serializer_class = CargoSerializer
-    queryset = Cargo.objects.select_related('pickup_location', 'delivery_location')
-
-
-class CreateCargoView(CreateAPIView):
+class CargoViewSet(viewsets.ViewSet, GenericAPIView):
     serializer_class = CargoCreateSerializer
+
+    def create(self, request, *args, **kwargs):
+        serializer = CargoCreateSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+
+    def perform_create(self, serializer):
+        serializer.save()
+
+    def get_success_headers(self, data):
+        try:
+            return {'Location': str(data[api_settings.URL_FIELD_NAME])}
+        except (TypeError, KeyError):
+            return {}
+
+    def list(self, request):
+        queryset = self.get_queryset().get_trucks_with_distance().get_nearest_trucks()
+        serializer = CargoSerializer(queryset, many=True)
+        return Response(serializer.data)
+
+    def retrieve(self, requst, pk=None):
+        queryset = self.get_queryset()
+        cargo = get_object_or_404(queryset, pk=pk)
+        serializer = CargoDetailSerializer(cargo)
+        return Response(serializer.data)
+
+    def get_queryset(self):
+        queryset = Cargo.objects.select_related(
+            'delivery_location',
+            'pickup_location'
+        )
+        return queryset
+
+
+class DestroyUpdateCargoView(RetrieveUpdateDestroyAPIView):
+    serializer_class = CargoUpdateSerializer
+    queryset = Cargo.objects.select_related(
+            'delivery_location',
+            'pickup_location'
+        )

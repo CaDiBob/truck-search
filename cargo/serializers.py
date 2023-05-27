@@ -1,16 +1,28 @@
 from rest_framework import serializers
-from geopy import distance
 
 from truck.models import Truck
 from cargo.models import Cargo
 from location.models import Location
 from location.serializers import LocationDetailSerializer
 from cargo.sevices import get_distance_from_truck_to_load
-from truck.serializers import TruckDetailSerializer
+
+
+class CargoUpdateSerializer(serializers.ModelSerializer):
+    pickup_location = LocationDetailSerializer(read_only=True)
+    delivery_location = LocationDetailSerializer(read_only=True)
+
+    class Meta:
+        model = Cargo
+        fields = (
+            'pickup_location',
+            'delivery_location',
+            'weight',
+            'description'
+        )
 
 
 class CargoCreateSerializer(serializers.ModelSerializer):
-    pick_up_zip = serializers.SlugRelatedField(
+    pickup_zip = serializers.SlugRelatedField(
         slug_field='zip_code',
         queryset=Location.objects.all(),
         write_only=True,
@@ -24,35 +36,53 @@ class CargoCreateSerializer(serializers.ModelSerializer):
     )
     class Meta:
         model = Cargo
-        fields = [
-            'pick_up_zip',
+        fields = (
+            'pickup_zip',
             'delivery_zip',
             'weight',
             'description',
-        ]
+        )
 
 
 class CargoSerializer(serializers.ModelSerializer):
-    pickup_location = LocationDetailSerializer()
-    delivery_location = LocationDetailSerializer()
-    trucks = serializers.SerializerMethodField()
+    pickup_location = LocationDetailSerializer(read_only=True)
+    delivery_location = LocationDetailSerializer(read_only=True)
+    nearest_trucks = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = Cargo
-        fields = [
+        fields = (
             'pickup_location',
             'delivery_location',
-            'trucks'
-        ]
+            'nearest_trucks',
+        )
+
+    def get_nearest_trucks(self, obj):
+        return obj.nearest_trucks
+
+
+class CargoDetailSerializer(serializers.ModelSerializer):
+    pickup_location = LocationDetailSerializer(read_only=True)
+    delivery_location = LocationDetailSerializer(read_only=True)
+    trucks = serializers.SerializerMethodField(read_only=True)
+
+    class Meta:
+        model = Cargo
+        fields = (
+            'pickup_location',
+            'delivery_location',
+            'weight',
+            'description',
+            'trucks',
+        )
 
     def get_trucks(self, obj):
-        trucks = [
+        trucks = Truck.objects.select_related('location')
+        trucks_with_distance = [
             {
-                'registration_plate': truck.registration_plate,
-                'load_capacity': truck.load_capacity,
-                'distance':get_distance_from_truck_to_load(truck, obj)
+                'registation_plate': truck.registration_plate,
+                'distance': get_distance_from_truck_to_load(truck, obj)
             }
-            for truck in Truck.objects.select_related('location') \
-                if get_distance_from_truck_to_load(truck, obj) <= 450
+            for truck in trucks
         ]
-        return trucks
+        return trucks_with_distance
