@@ -1,0 +1,8 @@
+DEBUG=True
+ALLOWED_HOSTS=localhost,127.0.0.1
+SECRET_KEY='django-insecure-+enf)vt-5&y-f&r+w-^%32xz+!=+xq06zke!a6yz)jpz*_1xir'
+DATABASE_URL=postgres://user:pass@db/trucks
+
+POSTGRES_DB=trucks
+POSTGRES_USER=user
+POSTGRES_PASSWORD=pass

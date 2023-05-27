@@ -1,17 +1,17 @@
 FROM python:3.10-alpine
 
-COPY . /app
+COPY . /app/backend
 
-WORKDIR /app
+WORKDIR /app/backend
 
 EXPOSE 8000
 
 ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
 
-COPY requirements.txt .
+COPY requirements.txt ./app/backend
 
-RUN pip install -r requirements.txt
+RUN pip install -r /app/backend/requirements.txt
 
 RUN adduser --disabled-password user
 
