@@ -34,7 +34,7 @@ sudo docker-compose build
 Запустить контейнер:
 
 ```bash
-sudo docker-compose build
+sudo docker-compose up
 ```
 
 Открыть еще одно окно терминала выполнить миграции и заполнить бд тестовыми данными и создать суперпользователя:
