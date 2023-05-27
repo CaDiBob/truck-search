@@ -1,3 +1,9 @@
-from django.shortcuts import render
+from rest_framework.generics import UpdateAPIView
 
-# Create your views here.
+from truck.models import Truck
+from truck.serializers import TruckDetailSerializer
+
+
+class TruckUpdateView(UpdateAPIView):
+    serializer_class = TruckDetailSerializer
+    queryset = Truck.objects.all()
