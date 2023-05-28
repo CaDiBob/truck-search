@@ -54,11 +54,11 @@ class CargoViewSet(viewsets.ViewSet, GenericAPIView):
             'pickup_location'
         ).get_trucks_with_distance().get_nearest_trucks()
 
-        if distance := self.request.query_params.get('distance'):
-            return filters.filter_by_distance(queryset, distance)
+        distance = self.request.query_params.get('distance')
+        weight = self.request.query_params.get('weight')
 
-        if weight := self.request.query_params.get('weight'):
-            return queryset.filter(weight=weight)
+        if distance is not None and weight is not None:
+            return filters.filter_by_distance(queryset, distance, weight)
 
         return queryset
 
