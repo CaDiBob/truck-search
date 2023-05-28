@@ -8,6 +8,7 @@ from rest_framework.generics import (
 from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
 
+from cargo import filters
 from cargo.models import Cargo
 from cargo.serializers import (
     CargoCreateSerializer,
@@ -37,7 +38,7 @@ class CargoViewSet(viewsets.ViewSet, GenericAPIView):
             return {}
 
     def list(self, request):
-        queryset = self.get_queryset().get_trucks_with_distance().get_nearest_trucks()
+        queryset = self.get_queryset()
         serializer = CargoSerializer(queryset, many=True)
         return Response(serializer.data)
 
@@ -51,7 +52,14 @@ class CargoViewSet(viewsets.ViewSet, GenericAPIView):
         queryset = Cargo.objects.select_related(
             'delivery_location',
             'pickup_location'
-        )
+        ).get_trucks_with_distance().get_nearest_trucks()
+
+        if distance := self.request.query_params.get('distance'):
+            return filters.filter_by_distance(queryset, distance)
+
+        if weight := self.request.query_params.get('weight'):
+            return queryset.filter(weight=weight)
+
         return queryset
 
 
