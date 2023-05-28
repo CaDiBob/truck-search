@@ -86,10 +86,15 @@ WSGI_APPLICATION = 'truck_search.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.0/ref/settings/#databases
 
+POSTGRES_DB = env.str('POSTGRES_DB')
+POSTGRES_USER = env.str('POSTGRES_USER')
+POSTGRES_PASSWORD = env.str('POSTGRES_PASSWORD')
+
+
 DATABASES = {
-        'default': env.dj_db_url(
-            'DATABASE_URL',
-            'sqlite:////{0}'.format(Path(BASE_DIR) / 'db.sqlite3')
+        'default': dj_database_url.config(
+            default=f'postgres://{POSTGRES_USER}:{POSTGRES_PASSWORD}@db/{POSTGRES_DB}',
+            conn_max_age=600
         ),
 }
 
@@ -134,9 +139,9 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+# Debug toolbar
+
 INTERNAL_IPS = [
     '127.0.0.1',
     'localhost'
 ]
-
-CELERY_BROKER_URL = 'redis://redis:6379/0'
