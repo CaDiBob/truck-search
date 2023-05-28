@@ -1,9 +1,9 @@
-version: '3.9'
+version: '3'
 
 services:
   db:
     restart: always
-    image: postgres:14.0-alpine
+    image: postgres:12.0-alpine
     volumes:
       - postgres_data:/var/lib/postgresql/data/
     container_name: db_web
@@ -15,7 +15,11 @@ services:
 
   backend:
     build: ./backend
-    command: sh -c "python backend/manage.py runserver 0.0.0.0:8000"
+    command: sh -c "sleep 10                                                  &&
+                    python backend/manage.py migrate --noinput                &&
+                    python backend/manage.py load_csv backend/uszips.csv      &&
+                    python backend/manage.py create_trucks                    &&
+                    python backend/manage.py runserver 0.0.0.0:8000"
     container_name: backend
     volumes:
       - .:/app
@@ -26,8 +30,33 @@ services:
     env_file:
       - .env
     depends_on:
-        - db
+      - db
 
+  redis:
+    image: redis:7.0.5-alpine
+    hostname: redis
+
+  worker:
+    build: ./backend
+    hostname: worker
+    command: sh -c "cd backend/ && celery -A truck_search worker -l info"
+    volumes:
+      - .:/app
+    links:
+      - redis
+    depends_on:
+      - redis
+
+  beat:
+    build: ./backend
+    hostname: beat
+    command: sh -c "cd backend/ && celery -A truck_search beat -l info"
+    volumes:
+      - .:/app
+    links:
+      - redis
+    depends_on:
+      - redis
 
 volumes:
   postgres_data:

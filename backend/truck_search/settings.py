@@ -145,3 +145,6 @@ INTERNAL_IPS = [
     '127.0.0.1',
     'localhost'
 ]
+
+CELERY_BROKER_URL = 'redis://redis:6379/1'
+CELERY_RESULT_BACKEND = 'redis://redis:6379'
