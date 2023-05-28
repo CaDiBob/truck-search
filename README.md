@@ -52,8 +52,13 @@ sudo docker-compose run --rm backend sh -c "python manage.py createsuperuser" #�
 [http://127.0.0.1:8000/api/add-cargo/](http://127.0.0.1:8000/api/add-cargo/) `добавить груз`
 
 [http://127.0.0.1:8000/api/cargo-list](http://127.0.0.1:8000/api/cargo-list) `просмотреть список грузов`
+![](./screenshots/list.png)
 
 [http://127.0.0.1:8000/api/cargo-info/айди-груза](http://127.0.0.1:8000/api/cargo-info/айди-груза) `просмотреть один груз`
+![](./screenshots/cargo.png)
+
+[http://localhost:8000/api/cargo-list/?distance=растояние&weight=вес](http://localhost:8000/api/cargo-list/?distance=400&weight=400) `фильтр по весу и растоянию до груза`
+![](./screenshots/filter.png)
 
 [http://127.0.0.1:8000/api/cargo/айди-груза](http://127.0.0.1:8000/api/cargo/айди-груза) `обновить/удалить груз`
 
