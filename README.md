@@ -36,24 +36,6 @@ sudo docker compose build
 sudo docker compose up
 ```
 
-Открыть еще одно окно терминала выполнить миграции и заполнить бд тестовыми данными и создать суперпользователя:
-
-Запустить миграции:
-
-```bash
-sudo docker compose run --rm backend sh -c "python backend/manage.py migrate"
-```
-
-Заполнить БД локациями
-
-```bash
-sudo docker compose run --rm backend sh -c "python backend/manage.py load_csv backend/uszips.csv"
-```
- Заполнить БД грузовиками по умолчанию 20 шт., принимает необязательный аргумент целое число какое количество грузовиков создать.
-
-```bash
-sudo docker compose run --rm backend sh -c "python backend/manage.py create_trucks"
-```
  Cоздать суперпотльвателя для админ-панели
 
 ```bash
